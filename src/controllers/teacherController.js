@@ -32,3 +32,17 @@ exports.getDocente = (req,res)=>{
     res.status(400).json({success:false,message:err.message,err});
   })
 }
+
+exports.datosDocente = (req,res)=>{
+  let email = req.params.email;
+  let query = `SELECT nombres,apellido_paterno,apellido_materno FROM docentes WHERE email=$1`;
+  let datos = new ps('datos',query,email)
+  db.one(datos)
+  .then(data=>{
+    res.status(200).json({success:true,data})
+  })
+  .catch(err=>{
+    console.log('ERROR: ',err.message || err);
+    res.status(400).json({success:false,message:err.message,err});
+  })
+}

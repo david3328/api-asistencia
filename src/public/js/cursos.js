@@ -64,7 +64,8 @@ function listarCursos(){
         })
         cursos.innerHTML = html;
       }else{
-        cursos.innerHTML = `<option value='-1'>No hay cursos registrados</option>`
+        cursos.innerHTML = `<option value='-1'>Seleccionar curso</option>
+        <option value=''>NO HAY REQUISITO</option>`
       }
     }
   })

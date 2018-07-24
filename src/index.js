@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 const app = express();
 
 const assistanceRouter = require('./routes/assistanceRoute');
@@ -14,6 +15,7 @@ app.set('port', process.env.PORT || 4000);
 //Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')));
+app.use(cors());
 
 //Routes
 app.use('/api',assistanceRouter);

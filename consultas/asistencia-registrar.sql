@@ -35,8 +35,9 @@ END;
 $BODY$
 LANGUAGE plpgsql;
 
+DROP FUNCTION fn_asistencia(varchar,smallint)
 --FUNCION PARA REGISTRAR ASISTENCIA DEL ALUMNO Y VERIFICAR SI PERTENECE AL CURSO
-CREATE OR REPLACE FUNCTION fn_asistencia(_idalumno varchar, _idasistencia smallint)
+CREATE OR REPLACE FUNCTION fn_asistencia(_idalumno varchar, _idasistencia smallint,_fecha timestamp)
 RETURNS smallint AS
 $BODY$
 DECLARE _response smallint;
@@ -46,15 +47,16 @@ BEGIN
 	INNER JOIN horarios AS H ON H.id_guia = G.id_guia
 	INNER JOIN asistencias AS A ON A.id_horario = H.id_horario
 	WHERE M.id_alumno = _idalumno AND A.id_asistencia = _idasistencia;
-	
+	INSERT INTO alumno_asistencia(id_asistencia,id_alumno,fecha) VALUES (_idasistencia,_idalumno,_fecha);
 	IF _response IS NULL THEN
-		INSERT INTO alumno_asistencia(id_asistencia,id_alumno) VALUES (_idasistencia,_idalumno);
 		_response = 0;
 	END IF; 
 	RETURN _response;
 END;
 $BODY$
 LANGUAGE plpgsql;
-
+SELECT fn_asistencia('132036C'::varchar,2::smallint)
+SELECT * FROM alumnos
+SELECT * FROM alumno_asistencia
 --CREAR ASISTENCIA 
 INSERT INTO asistencias (id_horario) VALUES ($1) RETURNING id_asistencia
