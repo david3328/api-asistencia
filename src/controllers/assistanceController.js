@@ -110,12 +110,11 @@ exports.getAlumnos = (req, res) => {
 }
 
 exports.createAssistance = (req, res) => {
-  const idHorario = req.body.idHorario;
-  const query = 'INSERT INTO asistencias (id_horario) VALUES ($1) RETURNING id_asistencia';
-  const asistencia = new ps('asistencia', query, idHorario);
-  db.one(asistencia)
+  const email = req.body.email;
+ 
+  db.func('fn_crear_asistencia',email)
     .then(data => {
-      res.status(200).json({ success: true, message: 'Creada asistencia.', data });
+      res.status(200).json({ success: true, message: 'Creada asistencia.', data:data[0].fn_crear_asistencia });
     })
     .catch(err => {
       res.status(400).json({ success: false, message: err.message, err });

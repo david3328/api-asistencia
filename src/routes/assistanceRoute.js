@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {setAssistance,docenteAsistencia,createAssistance,getCourses,getTeachers,getAsistencias,getAlumnos,getTodayAssistance,offAssistance} = require('../controllers/assistanceController');
 
-router.post('/asistencia/ingresar',setAssistance);
+router.post('/asistencias/ingresar',setAssistance);
 router.post('/asistencia/ingresar/docente',docenteAsistencia);
 router.post('/asistencia/offline',offAssistance);
 router.post('/asistencia/crear',createAssistance);

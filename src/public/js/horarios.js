@@ -47,9 +47,10 @@ function listarHorarios(){
         let count = 0;
         res.data.map(el=>{
           count++;
+          el.semana = el.dia==1?'LU':el.dia==2?'MA':el.dia==3?'MI':el.dia==4?'JUE':'VI';
           html += `<tr>
             <td>${el.id_grupo}-${el.nombre}</td>
-            <td>${el.dia}</td> 
+            <td>${el.semana}</td> 
             <td>${el.hora_inicio}</td> 
             <td>${el.hora_fin}</td>
           </tr>` 
