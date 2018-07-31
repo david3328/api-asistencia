@@ -150,41 +150,49 @@ exports.offAssistance = (req, res) => {
 
 exports.finalizarAsistencia = (req, res) => {
   let idAsistencia = req.body.asistencia;
-  let query = `SELECT a.id_alumno, a.nombres, a.apellido_paterno, a.apellido_materno
-  FROM alumno_asistencia aa
+  let query = `  SELECT a.id_alumno id, a.nombres, a.apellido_paterno, a.apellido_materno, 'ALUMNO' as tipo 
+  FROM alumno_asistencia aa 
   INNER JOIN alumnos a ON a.id_alumno = aa.id_alumno
-  WHERE id_asistencia = ${idAsistencia}`;
+  WHERE aa.id_asistencia = ${idAsistencia}
+  UNION 
+  SELECT d.email id,d.nombres, d.apellido_paterno, d.apellido_materno, 'DOCENTE' as tipo
+  FROM docente_asistencia da
+  INNER JOIN docentes d ON d.email = da.id_docente
+  WHERE da.id_asistencia = ${idAsistencia}
+  ORDER BY tipo desc`;
   db.any(query)
-    .then(data => {
-      let htmlS = '<ul>'
-      data.map(el=>{
-        htmlS += `<li>${el.id_alumno}: ${el.nombres} ${el.apellido_paterno} ${el.apellido_materno}</li>`;
-      })
-      htmlS+='</ul>';
-      const mailOption = {
-        from: 'clydejhon2@gmail.com',
-        to: 'coco_29_aries@hotmail.com',
-        subject: 'Reporte de asistencia',
-        html:htmlS
-      }
-      transporter.sendMail(mailOption, (err, info) => {
-        if (err) {
-          console.log('ERROR: ', err.message || err);
-          res.status(400).json({ success: false, message: err.message, err });
-        } else {
-          res.status(200).json({ success: true, message: 'Correo enviado.' })
-        }
-      })
+      .then(data => {
+          console.log('ASISTENTES', data);
+          let htmlS = '<ul>'
+          data.map(el => {
+              htmlS += `<li>${el.id}: ${el.nombres} ${el.apellido_paterno} ${el.apellido_materno} - ${el.tipo}</li>`;
+          })
+          htmlS += '</ul>';
+          const mailOption = {
+              from: 'clydejhon2@gmail.com',
+              to: 'coco_29_aries@hotmail.com',
+              subject: 'Reporte de asistencia',
+              html: htmlS
+          }
+          transporter.sendMail(mailOption, (err, info) => {
+              if (err) {
+                  console.log('ERROR: ', err.message || err);
+                  res.status(400).json({ success: false, message: err.message, err });
+              } else {
+                  res.status(200).json({ success: true, message: 'Correo enviado.' })
+              }
+          })
 
-    })
-    .catch(err => {
-      console.log('ERROR: ', err.message || err);
-      res.status(500).json({ success: false, message: err.message, err })
-    })
+      })
+      .catch(err => {
+          console.log('ERROR: ', err.message || err);
+          res.status(500).json({ success: false, message: err.message, err })
+      })
 }
 
 
 sendSMS = (req, res) => {
+  console.log('Test Mensaje de texto');
   let idAsistencia = req.body.idAsistencia;
   let idAlumno = req.body.idAlumno;
   const query = 'SELECT fn_telefono AS response FROM fn_telefono($1)';

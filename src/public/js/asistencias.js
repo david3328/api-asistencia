@@ -2,12 +2,18 @@ const docentes = document.getElementById('docentes');
 const cursos = document.getElementById('cursos');
 const horarios = document.getElementById('horarios');
 const btnGuardar = document.getElementById('guardar');
+const btnImprimir = document.getElementById('print');
 listarDocentes();
 
 docentes.addEventListener('change',()=>{
   if(docentes.value!=-1){
     listarCursos(docentes.value);
   }
+})
+
+
+btnImprimir.addEventListener('click',()=>{
+  console.log('imprime mierda');
 })
 
 cursos.addEventListener('change',()=>{
@@ -123,3 +129,19 @@ var tableToExcel = (function() {
     window.location.href = uri + base64(format(template, ctx))
   }
 })()
+
+
+$('#print').click(()=>{
+  console.log('ctmr imprimre')
+  printContent('report');
+})
+
+
+function printContent(el){
+  console.log('imprimir');
+  var restorepage = $('body').html();
+  var printcontent = $('#' + el).clone();
+  $('body').empty().html(printcontent);
+  window.print();
+  $('body').html(restorepage);
+  }

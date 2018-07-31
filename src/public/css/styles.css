@@ -14557,4 +14557,8 @@ header{
   overflow-y:scroll;
 }
 
+.c-pointer{
+  cursor:pointer;
+}
+
 /*# sourceMappingURL=styles.css.map */

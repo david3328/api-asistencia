@@ -10,6 +10,7 @@ const courseRouter = require('./routes/courseRoute');
 const guideRouter = require('./routes/guideRoute');
 
 //Settings
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 app.set('port', process.env.PORT || 4000);
 
 //Middleware
