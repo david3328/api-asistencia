@@ -1,5 +1,6 @@
 const ps = require('pg-promise').PreparedStatement;
 const db = require('../database/db');
+const transporter = require('../services/mail');
 const fetch = require('node-fetch');
 
 exports.getTodayAssistance = (req, res) => {
@@ -22,19 +23,19 @@ exports.getTodayAssistance = (req, res) => {
     })
 }
 
-exports.docenteAsistencia = (req,res)=>{
+exports.docenteAsistencia = (req, res) => {
   let email = req.body.email;
   let asistencia = req.body.asistencia;
   let query = `INSERT INTO docente_asistencia(id_asistencia,id_docente) VALUES($1,$2)`;
-  let insertarDocente = new ps('insertarDocente',query,[asistencia,email]);
+  let insertarDocente = new ps('insertarDocente', query, [asistencia, email]);
   db.none(insertarDocente)
-  .then(()=>{
-    res.status(200).json({success:true});
-  })
-  .catch(err => {
-    console.log('ERROR: ', err.message || err);
-    res.status(400).json({ success: false, message: err.message, err });
-  })
+    .then(() => {
+      res.status(200).json({ success: true });
+    })
+    .catch(err => {
+      console.log('ERROR: ', err.message || err);
+      res.status(400).json({ success: false, message: err.message, err });
+    })
 }
 
 exports.getTeachers = (req, res) => {
@@ -98,7 +99,7 @@ exports.getAlumnos = (req, res) => {
   INNER JOIN docentes d ON d.email = da.id_docente
   WHERE da.id_asistencia = $2
   ORDER BY tipo desc`;
-  const alumnos = new ps('alumnos', query, [asistencia,asistencia]);
+  const alumnos = new ps('alumnos', query, [asistencia, asistencia]);
   db.any(alumnos)
     .then(data => {
       res.status(200).json({ success: true, data })
@@ -111,10 +112,10 @@ exports.getAlumnos = (req, res) => {
 
 exports.createAssistance = (req, res) => {
   const email = req.body.email;
- 
-  db.func('fn_crear_asistencia',email)
+
+  db.func('fn_crear_asistencia', email)
     .then(data => {
-      res.status(200).json({ success: true, message: 'Creada asistencia.', data:data[0].fn_crear_asistencia });
+      res.status(200).json({ success: true, message: 'Creada asistencia.', data: data[0].fn_crear_asistencia });
     })
     .catch(err => {
       res.status(400).json({ success: false, message: err.message, err });
@@ -146,6 +147,43 @@ exports.offAssistance = (req, res) => {
   const date = req.body.date;
 }
 
+
+exports.finalizarAsistencia = (req, res) => {
+  let idAsistencia = req.body.asistencia;
+  let query = `SELECT a.id_alumno, a.nombres, a.apellido_paterno, a.apellido_materno
+  FROM alumno_asistencia aa
+  INNER JOIN alumnos a ON a.id_alumno = aa.id_alumno
+  WHERE id_asistencia = ${idAsistencia}`;
+  db.any(query)
+    .then(data => {
+      let htmlS = '<ul>'
+      data.map(el=>{
+        htmlS += `<li>${el.id_alumno}: ${el.nombres} ${el.apellido_paterno} ${el.apellido_materno}</li>`;
+      })
+      htmlS+='</ul>';
+      const mailOption = {
+        from: 'clydejhon2@gmail.com',
+        to: 'coco_29_aries@hotmail.com',
+        subject: 'Reporte de asistencia',
+        html:htmlS
+      }
+      transporter.sendMail(mailOption, (err, info) => {
+        if (err) {
+          console.log('ERROR: ', err.message || err);
+          res.status(400).json({ success: false, message: err.message, err });
+        } else {
+          res.status(200).json({ success: true, message: 'Correo enviado.' })
+        }
+      })
+
+    })
+    .catch(err => {
+      console.log('ERROR: ', err.message || err);
+      res.status(500).json({ success: false, message: err.message, err })
+    })
+}
+
+
 sendSMS = (req, res) => {
   let idAsistencia = req.body.idAsistencia;
   let idAlumno = req.body.idAlumno;
@@ -171,12 +209,12 @@ sendSMS = (req, res) => {
           })
             .then(rep => rep.json())
             .then(rep => {
-              if(rep.status=='pending'){
-                res.status(200).json({success:true})
-              }else{
-                res.status(400).json({success:false,message:'No se pudo enviar mensaje'})
+              if (rep.status == 'pending') {
+                res.status(200).json({ success: true })
+              } else {
+                res.status(400).json({ success: false, message: 'No se pudo enviar mensaje' })
               }
-                
+
             });
         })
         .catch(err => {
