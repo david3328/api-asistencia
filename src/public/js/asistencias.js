@@ -12,9 +12,7 @@ docentes.addEventListener('change',()=>{
 })
 
 
-btnImprimir.addEventListener('click',()=>{
-  console.log('imprime mierda');
-})
+
 
 cursos.addEventListener('change',()=>{
   if(cursos.value!=-1){
@@ -132,13 +130,11 @@ var tableToExcel = (function() {
 
 
 $('#print').click(()=>{
-  console.log('ctmr imprimre')
   printContent('report');
 })
 
 
 function printContent(el){
-  console.log('imprimir');
   var restorepage = $('body').html();
   var printcontent = $('#' + el).clone();
   $('body').empty().html(printcontent);

@@ -14557,8 +14557,20 @@ header{
   overflow-y:scroll;
 }
 
+@media print{
+  .table-container{
+    overflow-y:initial;
+  }
+}
+
 .c-pointer{
   cursor:pointer;
+}
+
+@media print{
+  #testTable{
+    overflow-y:initial;
+  }
 }
 
 /*# sourceMappingURL=styles.css.map */
